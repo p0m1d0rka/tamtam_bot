@@ -1,17 +1,20 @@
 from aiohttp import web, ClientSession
-from config.base import Config
 from app.handlers import healthcheck_handler, tamtam_handler
-import logging
-import argparse
+from app.logger import create_logger
+from config.base import Config
+
 
 
 async def on_shutdown(app):
-    logging.debug("on_shutdown")
+    app["logger"].debug("on_shutdown begin")
     await app["aiohttp_session"].close()
+    app["logger"].debug("on_shutdown end")
 
 
 async def init_app():
     app = web.Application()
+    app["logger"] = create_logger("app")
+    app["logger"].debug("creatine app")
     app.add_routes([
         web.get("/healthcheck", healthcheck_handler),
         web.get("/tamtam_handler", tamtam_handler),
@@ -24,12 +27,8 @@ async def init_app():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="tamtam bot")
-    parser.add_argument("--port")
-    args = parser.parse_args()
-    logging.basicConfig(level=Config.log_level)
     app = init_app()
-    web.run_app(app, host="0.0.0.0", port=args.port)
+    web.run_app(app, host=Config.host, port=Config.port)
 
 
 if __name__ == "__main__":
