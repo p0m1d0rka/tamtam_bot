@@ -1,0 +1,9 @@
+version: '3'
+services:
+  web:
+    image: 'p0m1d0rka/tamtam_bot:latest'
+    environment:
+      - GUNICORN_CMD_ARGS=" -w ${workers-2} -b ${host-0.0.0.0}:${port-9999} --worker-class aiohttp.GunicornWebWorker --access-logfile -"
+      - access_token=${access_token}
+    ports:
+      - "${port-9999}:${port-9999}"
